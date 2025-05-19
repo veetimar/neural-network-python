@@ -6,8 +6,9 @@ authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = "^3.9"
+requires-python = "^3.10"
 dependencies = [
+    "numpy (>=2.2.6,<3.0.0)"
 ]
 
 
@@ -18,3 +19,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 package-mode = false
+
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^3.3.7"
+
