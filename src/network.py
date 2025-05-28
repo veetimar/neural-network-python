@@ -65,10 +65,46 @@ class Network:
         Returns:
             ndarray: Array like the original array but sigmoid applied to the elements.
         """
-        new_array = np.zeros_like(array)
-        for i, x in enumerate(array):
-            new_array[i] = 1 / (1 + math.exp(-x[0]))
+        return 1 / (1 + np.exp(-array))
+
+    def sigmoid_derivative(self, array):
+        """Apply the derivative of sigmoid function element-wise to a vector.
+
+        Args:
+            array (ndarray): Array to be worked on.
+
+        Returns:
+            ndarray: Array like the original array but the derivative applied to the elements.
+        """
+        x = self.sigmoid(array)
+        new_array = x * (1 - x)
         return new_array
+
+    def mean_squared(self, outputs, expected):
+        """Calculate the mean squared error.
+
+        Args:
+            outputs (ndarray): Outputs of the neural network.
+            expected (ndarray): What the outputs should have been.
+
+        Returns:
+            float: The error value.
+        """
+        x = outputs - expected
+        return np.matmul(x.T, x) / len(x)
+
+    def mean_squared_gradient(self, outputs, expected):
+        """Calculate the gradient of mean squared error with respect to outputs.
+
+        Args:
+            outputs (ndarray): Outputs of the neural network.
+            expected (ndarray): What the outputs should have been.
+
+        Returns:
+            ndarray: The gradient.
+        """
+        x = outputs - expected
+        return 2 * x / len(x)
 
     def forward(self, inputs):
         """Forward inputs through the network and return outputs.
