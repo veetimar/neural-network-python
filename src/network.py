@@ -21,7 +21,7 @@ class Network:
         biases (list): Biases of every neuron in the network.
     """
 
-    def __init__(self, size):
+    def __init__(self, shape):
         """Create a new neural network.
 
         Args:
@@ -32,15 +32,15 @@ class Network:
             ValueError: If the amount of layers is under 2 or
               the amount of neurons in a layer is under 1.
         """
-        if len(size) < 2 or not all(layer_size > 0 for layer_size in size):
+        if len(shape) < 2 or not all(layer_size > 0 for layer_size in shape):
             raise ValueError("illegal size for the neural network")
-        self.size = tuple(size)
-        self.values = [None for _ in range(len(size))]
+        self.shape = tuple(shape)
+        self.values = [None for _ in range(len(shape))]
         self.weights = [None]
         self.biases = [None]
-        for i in range(1, len(self.size)):
-            self.biases.append(np.zeros((self.size[i], 1)))
-            self.weights.append(self.xavier(self.size[i], self.size[i - 1]))
+        for i in range(1, len(self.shape)):
+            self.biases.append(np.zeros((self.shape[i], 1)))
+            self.weights.append(self.xavier(self.shape[i], self.shape[i - 1]))
 
     def xavier(self, size, old_size):
         """Uniform xavier weight initialization for layers using the sigmoid activation funcion.
@@ -116,11 +116,47 @@ class Network:
         Returns:
             ndarray: Values of the output neurons after the forwarding.
         """
-        self.values[0] = np.reshape(inputs, (self.size[0], 1))
-        for i in range(1, len(self.size)):
+        self.values[0] = np.reshape(inputs, (self.shape[0], 1))
+        for i in range(1, len(self.shape)):
             vector = np.matmul(self.weights[i], self.values[i - 1]) + self.biases[i]
             self.values[i] = self.sigmoid(vector)
         return self.values[-1]
 
+    def save(self, path=""):
+        """Save current weights and biases to the disk.
+
+        Args:
+            path (str, optional): Path to the directory where the files will be saved.
+              Path must exist already. Defaults to "".
+        """
+        if path and not path.endswith("/"):
+            path += "/"
+        np.savez_compressed(path + "weights.npz", *self.weights[1:])
+        np.savez_compressed(path + "biases.npz", *self.biases[1:])
+
+    def load(self, path=""):
+        """Load current weights and biases from the disk.
+
+        Args:
+            path (str, optional): Path to the directory containing the files. Defaults to "".
+
+        Raises:
+            ValueError: If the shape of loaded weights and biases do not fit to the network.
+        """
+        if path and not path.endswith("/"):
+            path += "/"
+        weights = [None]
+        biases = [None]
+        weights += np.load(path + "weights.npz").values()
+        biases += np.load(path + "biases.npz").values()
+        if len(weights) != len(self.shape) or len(biases) != len(self.shape):
+            raise ValueError("loaded weights or biases do not fit to the network")
+        shape = self.shape
+        for i in range(1, len(self.shape)):
+            if weights[i].shape != (shape[i], shape[i - 1]) or biases[i].shape != (shape[i], 1):
+                raise ValueError("loaded weights or biases do not fit to the network")
+        self.weights = weights
+        self.biases = biases
+
     def __repr__(self):
-        return f"Network{self.size}"
+        return f"Network{self.shape}"

@@ -175,4 +175,5 @@ cython_debug/
 
 
 todo
-.coverage
+*.npy
+*.npz
