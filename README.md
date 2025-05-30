@@ -4,6 +4,10 @@
 
 [Määrittelydokumentti](https://github.com/veetimar/neural-network-python/blob/master/docs/Määrittelydokumentti.md)
 
+[Testausdokumentti](https://github.com/veetimar/neural-network-python/blob/master/docs/Testausdokumentti.md)
+
 [Viikkoraportti 1](https://github.com/veetimar/neural-network-python/blob/master/docs/Viikkoraportti%201.md)
 
 [Viikkoraportti 2](https://github.com/veetimar/neural-network-python/blob/master/docs/Viikkoraportti%202.md)
+
+[Viikkoraportti 3](https://github.com/veetimar/neural-network-python/blob/master/docs/Viikkoraportti%203.md)
