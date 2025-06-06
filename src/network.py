@@ -12,8 +12,8 @@ import numpy as np
 class Network:
     """A neural network that can be trained for a given task.
 
-    After successful training the network should have picked up the underlying trend in the
-    training data and should be able to generalize it to cases not seen before.
+    After successful training the network should have picked up the underlying trend in the training
+    data and should be able to generalize it to cases not seen before.
 
     Attributes:
         shape (tuple): Information regarding the amount of layers and neurons in the network.
@@ -30,12 +30,12 @@ class Network:
         """Create a new neural network.
 
         Args:
-            shape (Iterable[int]): The length of this parameter is the amount of layers in
-              the network and the elements are the amounts of neurons in each layer respectively.
+            shape (Iterable[int]): The length of this parameter is the amount of layers in the
+             network and the elements are the amounts of neurons in each layer respectively.
 
         Raises:
-            ValueError: If the amount of layers is under 2 or
-              the amount of neurons in a layer is under 1.
+            ValueError: If the amount of layers is under 2 or the amount of neurons in a layer is
+              under 1.
         """
         if len(shape) < 2 or not all(size > 0 for size in shape):
             raise ValueError("illegal shape for the neural network")
@@ -141,11 +141,11 @@ class Network:
         produce outputs more like the expected outputs. Run update afterwards to apply the changes.
 
         Args:
-            inputs (Iterable[float]): Inputs to the network. Should be floats between 0 and 1.
-              The length of this parameter must be equal to the length of the input layer.
-            expected (Iterable[float]): The expected outputs from the passed inputs.
-              Should be floats between 0 and 1.
-              The length of this parameter must be equal to the length of the output layer.
+            inputs (Iterable[float]): Inputs to the network. Should be floats between 0 and 1. The
+              length of this parameter must be equal to the length of the input layer.
+            expected (Iterable[float]): The expected outputs from the passed inputs. Should be
+              floats between 0 and 1. The length of this parameter must be equal to the length of
+              the output layer.
 
         Returns:
             float: Mean squared error calculated from the actual outputs and expected outputs.
@@ -172,11 +172,11 @@ class Network:
               element of the tuple is inputs to the network and the second element is expected
               outputs.
             epochs (int): Number of epochs (how many times the whole dataset is iterated through).
-            learning_rate (float, optional): Determines how fast the network tries to learn.
-              The bigger this value the bigger steps the network takes towards the target.
-              Defaults to 0.01.
+            learning_rate (float, optional): Determines how fast the network tries to learn. The
+              bigger this value the bigger steps the network takes towards the target. Defaults to
+              0.01.
             batch_size (int, optional): Determines how many training examples are processed before
-              Updating the weights. Setting this to -1 will set batch size to maximum i.e. the
+              updating the weights. Setting this to -1 will set batch size to maximum i.e. the
               length of the training data. Defaults to -1.
 
         Raises:
@@ -215,8 +215,8 @@ class Network:
         """Update the weights and biases and clear the delta variables.
 
         Args:
-            learning_rate (float): Determines how fast the network tries to learn.
-              The bigger this value the bigger steps the network takes towards the target.
+            learning_rate (float): Determines how fast the network tries to learn. The bigger this
+              value the bigger steps the network takes towards the target.
         """
         for i in range(1, len(self.shape)):
             self.weights[i] -= learning_rate * self.delta_weights[i]
@@ -228,8 +228,8 @@ class Network:
         """Save current weights and biases to the disk.
 
         Args:
-            path (str, optional): Path to the directory where the files will be saved.
-              Path must exist already. Defaults to "".
+            path (str, optional): Path to the directory where the files will be saved. Path must
+              exist already. Defaults to "".
         """
         if path and not path.endswith("/"):
             path += "/"
