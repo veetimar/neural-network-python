@@ -1,5 +1,6 @@
 import struct
 import math
+import gzip
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,19 +8,21 @@ import matplotlib.pyplot as plt
 from network import Network
 
 def load_labels(path):
-    with open(path, 'rb') as file:
+    with gzip.open(path, 'rb') as file:
         magic, length = struct.unpack('>II', file.read(8))
         if magic != 2049:
             raise ValueError(f"magic number mismatch: got {magic}, expected 2049")
-        array = np.fromfile(file, dtype=np.dtype(np.uint8))
-    return array.reshape(length)
+        buffer = file.read(length)
+        array = np.frombuffer(buffer, dtype=np.uint8)
+    return array
 
 def load_images(path):
-    with open(path, 'rb') as file:
+    with gzip.open(path, 'rb') as file:
         magic, length, rows, cols = struct.unpack('>IIII', file.read(16))
         if magic != 2051:
             raise ValueError(f"magic number mismatch: got {magic}, expected 2051")
-        array = np.fromfile(file, dtype=np.dtype(np.uint8))
+        buffer = file.read(length * rows * cols)
+        array = np.frombuffer(buffer, dtype=np.uint8)
     return array.reshape(length, rows, cols) / 255
 
 def plot_images(images):
@@ -82,10 +85,10 @@ def main():
     nn = Network((784, 28, 28, 10))
 
     path = "../mnist/"
-    train_images = load_images(path + "train-images.idx3-ubyte")
-    train_labels = load_labels(path + "train-labels.idx1-ubyte")
-    test_images = load_images(path + "t10k-images.idx3-ubyte")
-    test_labels = load_labels(path + "t10k-labels.idx1-ubyte")
+    train_images = load_images(path + "train-images-idx3-ubyte.gz")
+    train_labels = load_labels(path + "train-labels-idx1-ubyte.gz")
+    test_images = load_images(path + "t10k-images-idx3-ubyte.gz")
+    test_labels = load_labels(path + "t10k-labels-idx1-ubyte.gz")
 
     print("Before training:")
     test(nn, test_images, test_labels)
