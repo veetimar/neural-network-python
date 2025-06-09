@@ -104,9 +104,9 @@ def train(nn, images, labels):
         training_data.append((inputs.reshape((-1, 1)), outputs.reshape((-1, 1))))
     errors = []
     print("1/2")
-    errors += nn.train(training_data, 10, batch_size=1, learning_rate=1)
+    errors += nn.train(training_data, 10, batch_size=1, learning_rate=0.1)
     print("2/2")
-    errors += nn.train(training_data, 10, batch_size=10, learning_rate=1)
+    errors += nn.train(training_data, 10, batch_size=10, learning_rate=0.1)
     print("Training finished.")
     return errors
 

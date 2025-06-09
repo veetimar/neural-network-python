@@ -48,7 +48,10 @@ class Network:
         self.delta_weights = [None]
         self.delta_biases = [None]
         for i in range(1, len(self.shape)):
-            self.weights.append(self.xavier(self.shape[i], self.shape[i - 1]))
+            if i != len(self.shape) - 1:
+                self.weights.append(self.he(self.shape[i], self.shape[i - 1]))
+            else:
+                self.weights.append(self.xavier(self.shape[i], self.shape[i - 1]))
             self.biases.append(np.zeros((self.shape[i], 1)))
             self.delta_weights.append(np.zeros_like(self.weights[i]))
             self.delta_biases.append(np.zeros_like(self.biases[i]))
@@ -67,11 +70,25 @@ class Network:
         weights = np.random.uniform(-x, x, (size, old_size))
         return weights
 
-    def sigmoid(self, array):
-        """Apply sigmoid function element-wise to a vector.
+    def he(self, size, old_size):
+        """Uniform he weight initialization for layers using ReLU-like activation functions.
 
         Args:
-            array (ndarray): Array to be worked on.
+            size (int): The size of the current layer.
+            old_size (int): The size of the previous layer.
+
+        Returns:
+            ndarray: The weights matrix for the current layer.
+        """
+        x = math.sqrt(6 / old_size)
+        weights = np.random.uniform(-x, x, (size, old_size))
+        return weights
+
+    def sigmoid(self, array):
+        """Apply the sigmoid function element-wise to a vector.
+
+        Args:
+            array (ndarray): The array to be worked on.
 
         Returns:
             ndarray: Array like the original array but sigmoid applied to the elements.
@@ -82,14 +99,35 @@ class Network:
         """Apply the derivative of sigmoid function element-wise to a vector.
 
         Args:
-            array (ndarray): Array to be worked on.
+            array (ndarray): The array to be worked on.
 
         Returns:
             ndarray: Array like the original array but the derivative applied to the elements.
         """
         x = self.sigmoid(array)
-        new_array = x * (1 - x)
-        return new_array
+        return x * (1 - x)
+
+    def elu(self, array):
+        """Apply the elu function element-wise to a vector.
+
+        Args:
+            array (ndarray): The array to be worked on.
+
+        Returns:
+            ndarray: Array like the original array but elu applied to the elements.
+        """
+        return np.where(array >= 0, array, np.exp(array) - 1)
+
+    def elu_derivative(self, array):
+        """Apply the derivative of elu function element-wise to a vector.
+
+        Args:
+            array (ndarray): The array to be worked on.
+
+        Returns:
+            ndarray: Array like the original array but the derivative applied to the elements.
+        """
+        return np.where(array >= 0, 1, np.exp(array))
 
     def mean_squared(self, outputs, expected):
         """Calculate the mean squared error.
@@ -131,7 +169,10 @@ class Network:
         for i in range(1, len(self.shape)):
             vector = np.matmul(self.weights[i], self.activations[i - 1]) + self.biases[i]
             self.values[i] = vector
-            self.activations[i] = self.sigmoid(vector)
+            if i != len(self.shape) - 1:
+                self.activations[i] = self.elu(vector)
+            else:
+                self.activations[i] = self.sigmoid(vector)
         return self.activations[-1]
 
     def backward(self, inputs, expected):
@@ -161,7 +202,7 @@ class Network:
             self.delta_weights[i] += np.matmul(self.gradients[i], self.activations[i - 1].T)
             if i != 1:
                 self.gradients[i - 1] = np.matmul(self.weights[i].T, self.gradients[i])
-                self.gradients[i - 1] *= self.sigmoid_derivative(self.values[i - 1])
+                self.gradients[i - 1] *= self.elu_derivative(self.values[i - 1])
         return error
 
     def train(self, training_data, epochs, batch_size=-1, learning_rate=0.01):
