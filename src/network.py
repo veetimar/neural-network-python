@@ -49,29 +49,30 @@ class Network:
         self.delta_biases = [None]
         for i in range(1, len(self.shape)):
             if i != len(self.shape) - 1:
-                self.weights.append(self.he(self.shape[i], self.shape[i - 1]))
+                self.weights.append(self.he(self.shape[i - 1], self.shape[i]))
             else:
-                self.weights.append(self.xavier(self.shape[i], self.shape[i - 1]))
+                self.weights.append(self.glorot(self.shape[i - 1], self.shape[i], 0))
             self.biases.append(np.zeros((self.shape[i], 1)))
             self.delta_weights.append(np.zeros_like(self.weights[i]))
             self.delta_biases.append(np.zeros_like(self.biases[i]))
 
-    def xavier(self, size, old_size):
-        """Uniform xavier weight initialization for layers using the sigmoid activation funcion.
+    def glorot(self, old_size, size, next_size):
+        """Uniform Glorot (Xavier) weight initialization for layers with sigmoid activation funcion.
 
         Args:
             size (int): The size of the current layer.
             old_size (int): The size of the previous layer.
+            next_size (int): The size of the next layer.
 
         Returns:
             ndarray: The weights matrix for the current layer.
         """
-        x = math.sqrt(6 / (size + old_size))
+        x = math.sqrt(6 / (old_size + next_size))
         weights = np.random.uniform(-x, x, (size, old_size))
         return weights
 
-    def he(self, size, old_size):
-        """Uniform he weight initialization for layers using ReLU-like activation functions.
+    def he(self, old_size, size):
+        """Normal He (Kaiming) weight initialization for layers with ReLU-like activation function.
 
         Args:
             size (int): The size of the current layer.
@@ -80,8 +81,8 @@ class Network:
         Returns:
             ndarray: The weights matrix for the current layer.
         """
-        x = math.sqrt(6 / old_size)
-        weights = np.random.uniform(-x, x, (size, old_size))
+        scale = math.sqrt(2 / old_size)
+        weights = np.random.normal(0, scale, (size, old_size))
         return weights
 
     def sigmoid(self, array):
