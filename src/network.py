@@ -206,7 +206,7 @@ class Network:
                 self.gradients[i - 1] *= self.elu_derivative(self.values[i - 1])
         return error
 
-    def train(self, training_data, epochs, batch_size=-1, learning_rate=0.01):
+    def train(self, training_data, epochs, batch_size=-1, learning_rate=0.1):
         """Train the neural network.
 
         Args:
