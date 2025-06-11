@@ -128,10 +128,7 @@ def test(nn, images, labels):
     for i, image in enumerate(images):
         label = labels[i]
         outputs = nn.forward(image)
-        guess = (-1, -1)
-        for j, value in enumerate(outputs):
-            guess = max(guess, (value, j))
-        guess = guess[1]
+        guess = np.argmax(outputs)
         if guess != label:
             wrong.append((image, f"Guess: {guess}, Actually: {label}"))
         else:
