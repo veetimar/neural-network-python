@@ -140,8 +140,8 @@ class Network:
         Returns:
             float: The error value.
         """
-        x = outputs - expected
-        return float((x.T @ x)[0][0] / len(x))
+        x = np.reshape(outputs, -1) - np.reshape(expected, -1)
+        return float(np.dot(x, x) / len(x))
 
     def mean_squared_gradient(self, outputs, expected):
         """Calculate the gradient of mean squared error with respect to outputs.
