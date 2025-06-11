@@ -141,7 +141,7 @@ class Network:
             float: The error value.
         """
         x = outputs - expected
-        return float(np.matmul(x.T, x)[0][0] / len(x))
+        return float((x.T @ x)[0][0] / len(x))
 
     def mean_squared_gradient(self, outputs, expected):
         """Calculate the gradient of mean squared error with respect to outputs.
@@ -168,7 +168,7 @@ class Network:
         """
         self.activations[0] = np.reshape(inputs, (self.shape[0], 1))
         for i in range(1, len(self.shape)):
-            vector = np.matmul(self.weights[i], self.activations[i - 1]) + self.biases[i]
+            vector = self.weights[i] @ self.activations[i - 1] + self.biases[i]
             self.values[i] = vector
             if i != len(self.shape) - 1:
                 self.activations[i] = self.elu(vector)
@@ -200,9 +200,9 @@ class Network:
         self.gradients[-1] *= self.sigmoid_derivative(self.values[-1])
         for i in range(len(self.shape) - 1, 0, -1):
             self.delta_biases[i] += self.gradients[i]
-            self.delta_weights[i] += np.matmul(self.gradients[i], self.activations[i - 1].T)
+            self.delta_weights[i] += self.gradients[i] @ self.activations[i - 1].T
             if i != 1:
-                self.gradients[i - 1] = np.matmul(self.weights[i].T, self.gradients[i])
+                self.gradients[i - 1] = self.weights[i].T @ self.gradients[i]
                 self.gradients[i - 1] *= self.elu_derivative(self.values[i - 1])
         return error
 
