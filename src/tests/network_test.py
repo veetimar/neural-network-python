@@ -6,9 +6,9 @@ from network import Network
 
 class TestNetwork(unittest.TestCase):
     def setUp(self):
-        self.shape = (2, 4, 2)
+        self.shape = (2, 3, 1)
         self.nn = Network(self.shape)
-        self.data = [([0, 0], [1, 1]),([0, 1], [1, 0]), ([1, 0], [0, 1]), ([1, 1], [0, 0])]
+        self.xor = [([0, 0], [0]),([0, 1], [1]), ([1, 0], [1]), ([1, 1], [0])]
 
     def test_constructor_raises_error(self):
         self.assertRaises(ValueError, Network, (0, 1))
@@ -50,9 +50,9 @@ class TestNetwork(unittest.TestCase):
 
     def test_sigmoid_returns_right_value(self):
         inputs = np.array([-1, 0, 1])
-        outputs = np.round(self.nn.sigmoid(inputs), 2)
+        outputs = self.nn.sigmoid(inputs)
         expected = np.array([0.27, 0.5, 0.73])
-        self.assertTrue((outputs == expected).all())
+        self.assertTrue(np.allclose(outputs, expected, atol=0.01))
 
     def test_sigmoid_derivative_returns_right_shape(self):
         in_1 = np.zeros((2))
@@ -67,9 +67,9 @@ class TestNetwork(unittest.TestCase):
 
     def test_sigmoid_derivative_returns_right_value(self):
         inputs = np.array([-1, 0, 1])
-        outputs = np.round(self.nn.sigmoid_derivative(inputs), 2)
+        outputs = self.nn.sigmoid_derivative(inputs)
         expected = np.array([0.2, 0.25, 0.2])
-        self.assertTrue((outputs == expected).all())
+        self.assertTrue(np.allclose(outputs, expected, atol=0.01))
 
     def test_elu_returns_right_shape(self):
         in_1 = np.zeros((2))
@@ -84,9 +84,9 @@ class TestNetwork(unittest.TestCase):
 
     def test_elu_returns_right_value(self):
         inputs = np.array([-1, 0, 1])
-        outputs = np.round(self.nn.elu(inputs), 2)
+        outputs = self.nn.elu(inputs)
         expected = np.array([-0.63, 0, 1])
-        self.assertTrue((outputs == expected).all())
+        self.assertTrue(np.allclose(outputs, expected, atol=0.01))
 
     def test_elu_derivative_returns_right_shape(self):
         in_1 = np.zeros((2))
@@ -101,9 +101,9 @@ class TestNetwork(unittest.TestCase):
 
     def test_elu_derivative_returns_right_value(self):
         inputs = np.array([-1, 0, 1])
-        outputs = np.round(self.nn.elu_derivative(inputs), 2)
+        outputs = self.nn.elu_derivative(inputs)
         expected = np.array([0.37, 1, 1])
-        self.assertTrue((outputs == expected).all())
+        self.assertTrue(np.allclose(outputs, expected, atol=0.01))
 
     def test_mean_squared_returns_right_shape(self):
         ex_1 = np.zeros((2))
@@ -140,20 +140,20 @@ class TestNetwork(unittest.TestCase):
         self.assertTrue((gradient == real).all())
 
     def test_forward_returns_right_shape(self):
-        outputs = self.nn.forward(self.data[0][0])
+        outputs = self.nn.forward(self.xor[0][0])
         self.assertEqual(outputs.shape, (self.shape[-1], 1))
 
     def test_backward_returns_right_shape(self):
-        error = self.nn.backward(self.data[0][0], self.data[0][1])
+        error = self.nn.backward(self.xor[0][0], self.xor[0][1])
         self.assertRaises(TypeError, iter, error)
 
     def test_train_returns_right_shape(self):
         epochs = 10
-        errors = self.nn.train(self.data, epochs, batch_size=3)
+        errors = self.nn.train(self.xor, epochs, batch_size=3)
         self.assertEqual(len(errors), epochs)
 
     def test_train_raises_error(self):
-        data = self.data
+        data = self.xor
         self.assertRaises(ValueError, self.nn.train, data, 0)
         self.assertRaises(ValueError, self.nn.train, data, 1, 0)
         data[0] = ([0, 0], [1, 1], [0, 0])
@@ -182,3 +182,27 @@ class TestNetwork(unittest.TestCase):
 
     def test_repr(self):
         self.assertEqual(repr(self.nn), f"Network{self.shape}")
+
+    def test_network_overfits_xor(self):
+        self.nn.train(self.xor, 5000, learning_rate=10)
+        for data in self.xor:
+            outputs = self.nn.forward(data[0]).reshape(-1)
+            self.assertTrue(np.allclose(data[1], outputs, atol=0.01))
+
+    def test_every_weight_changes(self):
+        old_weights = [array.copy() for array in self.nn.weights[1:]]
+        old_biases = [array.copy() for array in self.nn.biases[1:]]
+        self.nn.train(self.xor, 100)
+        new_weights = [array.copy() for array in self.nn.weights[1:]]
+        new_biases = [array.copy() for array in self.nn.biases[1:]]
+        for i in range(len(self.shape) - 1):
+            self.assertTrue((old_weights[i] != new_weights[i]).all())
+            self.assertTrue((old_biases[i] != new_biases[i]).all())
+
+    def test_backpropagation_does_not_touch_input_layer(self):
+        self.nn.train(self.xor, 1)
+        self.assertIsNone(self.nn.gradients[0])
+        self.assertIsNone(self.nn.weights[0])
+        self.assertIsNone(self.nn.biases[0])
+        self.assertIsNone(self.nn.delta_weights[0])
+        self.assertIsNone(self.nn.delta_biases[0])
