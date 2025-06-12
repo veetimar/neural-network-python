@@ -80,7 +80,7 @@ def plot_error(error):
     if ticks[-1] != len(error):
         ticks = ticks + [len(error)]
     plt.xticks(ticks)
-    plt.title("Error during training")
+    plt.title("Average error during training")
     plt.xlabel("Epochs")
     plt.ylabel("Error")
     plt.show()
@@ -145,7 +145,7 @@ def main():
     performs before training, train the network, test how well the network performs after training,
     and plot the images that the network was not able to classify correctly.
     """
-    nn = Network((784, 28, 28, 10))
+    nn = Network((784, 28, 28, 28, 10))
 
     path = "../mnist/"
     train_images = load_images(path + "train-images-idx3-ubyte.gz")
