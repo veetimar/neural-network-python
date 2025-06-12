@@ -1,11 +1,14 @@
 # Toteutusdokumentti
 
-Ohjelma koostuu kahdesta moduulista. Ensimmäinen moduuli on neuroverkko (projektin ydin), jota voidaan käyttää lähes mihin vaan.
-Toinen moduuli on tarkoittettu ajettavaksi, ja se käyttää neuroverkkomoduulia tunnistamaan käsinkirjoitettuja numeroita.
+Ohjelma koostuu kahdesta moduulista. Ensimmäinen moduuli sisältää neuroverkko-luokan (projektin ydin),
+joka voidaan kouluttaa ratkaisemaan haluttu ongelma.
 
-Projektin tukena on käytetty ChatGPT:tä tiedonhakuun ja joidenkin kummallisten bugien ratkomiseen.
+Toinen moduuli on tarkoittettu ajettavaksi,
+ja se käyttää ensimmäistä moduulia tunnistamaan käsinkirjoitettuja numeroita mnist-datasetin avulla.
+
+Projektiin voisi vielä lisätä ominaisuuden, jossa käyttäjä voi itse piirtää numeron ruudulle ja neruvoerkko yrittää tunnistaa sen.
+
+Projektin tukena on käytetty ChatGPT:tä tiedonhakuun, sekä joidenkin epätriviaalien bugien ratkomiseen.
 Kaikki koodi on kuitenkin tuotettu itse.
 
-Lähteet:
-
-3blue1brown:in [videosarja](https://www.3blue1brown.com/topics/neural-networks)
+Lähteenä käytetty 3blue1brown:in [videosarjaa](https://www.3blue1brown.com/topics/neural-networks)
