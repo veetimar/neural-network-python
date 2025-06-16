@@ -56,7 +56,8 @@ class Network:
             self.delta_weights.append(np.zeros_like(self.weights[i]))
             self.delta_biases.append(np.zeros_like(self.biases[i]))
 
-    def glorot(self, old_size, size, next_size):
+    @classmethod
+    def glorot(cls, old_size, size, next_size):
         """Uniform Glorot (Xavier) weight initialization for layers with sigmoid activation funcion.
 
         Args:
@@ -71,7 +72,8 @@ class Network:
         weights = np.random.uniform(-x, x, (size, old_size))
         return weights
 
-    def he(self, old_size, size):
+    @classmethod
+    def he(cls, old_size, size):
         """Normal He (Kaiming) weight initialization for layers with ReLU-like activation function.
 
         Args:
@@ -85,7 +87,8 @@ class Network:
         weights = np.random.normal(0, scale, (size, old_size))
         return weights
 
-    def sigmoid(self, array):
+    @classmethod
+    def sigmoid(cls, array):
         """Apply the sigmoid function element-wise to a vector.
 
         Args:
@@ -96,7 +99,8 @@ class Network:
         """
         return 1 / (1 + np.exp(-array))
 
-    def sigmoid_derivative(self, array):
+    @classmethod
+    def sigmoid_derivative(cls, array):
         """Apply the derivative of sigmoid function element-wise to a vector.
 
         Args:
@@ -105,10 +109,11 @@ class Network:
         Returns:
             ndarray: Array like the original array but the derivative applied to the elements.
         """
-        x = self.sigmoid(array)
+        x = cls.sigmoid(array)
         return x * (1 - x)
 
-    def elu(self, array):
+    @classmethod
+    def elu(cls, array):
         """Apply the elu function element-wise to a vector.
 
         Args:
@@ -119,7 +124,8 @@ class Network:
         """
         return np.where(array >= 0, array, np.exp(array) - 1)
 
-    def elu_derivative(self, array):
+    @classmethod
+    def elu_derivative(cls, array):
         """Apply the derivative of elu function element-wise to a vector.
 
         Args:
@@ -130,7 +136,8 @@ class Network:
         """
         return np.where(array >= 0, 1, np.exp(array))
 
-    def mean_squared(self, outputs, expected):
+    @classmethod
+    def mean_squared(cls, outputs, expected):
         """Calculate the mean squared error.
 
         Args:
@@ -143,7 +150,8 @@ class Network:
         x = np.reshape(outputs, -1) - np.reshape(expected, -1)
         return float(np.dot(x, x) / len(x))
 
-    def mean_squared_gradient(self, outputs, expected):
+    @classmethod
+    def mean_squared_gradient(cls, outputs, expected):
         """Calculate the gradient of mean squared error with respect to outputs.
 
         Args:
