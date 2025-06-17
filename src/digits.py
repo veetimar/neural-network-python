@@ -1,8 +1,8 @@
 """Digits
 =========
 
-This module is used to test the Network module's ability to learn and classify handwritten digits in
-the mnist dataset.
+This module contains the Digits class that can be used to test the Network module's ability to learn
+and classify handwritten digits in the MNIST dataset.
 """
 
 import struct
@@ -14,159 +14,247 @@ import matplotlib.pyplot as plt
 
 from network import Network
 
-def load_labels(path):
-    """Load the labels for the digits from a gz compressed file.
+class Digits:
+    """User interface for testing and training the Network class on MNIST handwritten digits.
 
-    Args:
-        path (str): Path to the file.
+    Contains methods for training the network to recognize handwritten digits as well as to test how
+    well the network is able to identify them using the MNIST handwritten digits dataset.
 
-    Raises:
-        ValueError: If the magic number read from the file is not equal to the expected number.
-
-    Returns:
-        ndarray: The labels.
+    Attributes:
+        run (bool): Controls whether the program should keep running.
+        nn (Network): Neural network used to recognize the digits.
+        training_data (list[tuple]): Data used to train the network.
+        testing_data (list[tuple]): Data used to test the network.
     """
-    with gzip.open(path, 'rb') as file:
-        magic, length = struct.unpack('>II', file.read(8))
-        if magic != 2049:
-            raise ValueError(f"magic number mismatch: got {magic}, expected 2049")
-        buffer = file.read(length)
-        array = np.frombuffer(buffer, dtype=np.uint8)
-    return array
 
-def load_images(path):
-    """Load the handwritten digits from a gz compressed file.
+    def __init__(self, path=""):
+        """Create a new user interface.
 
-    Args:
-        path (str): Path to the file.
+        Args:
+            path (str, optional): Path to the directory containing the MNIST files. Defaults to "".
+        """
+        self.run = True
+        self.nn = Network((784, 56, 28, 10))
+        if path and not path.endswith("/"):
+            path += "/"
+        train_images = self.load_images(path + "train-images-idx3-ubyte.gz")
+        train_labels = self.load_labels(path + "train-labels-idx1-ubyte.gz")
+        test_images = self.load_images(path + "t10k-images-idx3-ubyte.gz")
+        test_labels = self.load_labels(path + "t10k-labels-idx1-ubyte.gz")
+        self.training_data = []
+        self.testing_data = []
+        for i, image in enumerate(train_images):
+            inputs = image
+            outputs = np.array([1 if j == train_labels[i] else 0 for j in range(self.nn.shape[-1])])
+            self.training_data.append((inputs.reshape((-1, 1)), outputs.reshape((-1, 1))))
+        for i, image in enumerate(test_images):
+            inputs = image
+            label = test_labels[i]
+            self.testing_data.append((inputs, label))
 
-    Raises:
-        ValueError: If the magic number read from the file is not equal to the expected number.
+    @classmethod
+    def load_labels(cls, path):
+        """Load the labels for the digits from a gz compressed file.
 
-    Returns:
-        ndarray: The images.
-    """
-    with gzip.open(path, 'rb') as file:
-        magic, length, rows, cols = struct.unpack('>IIII', file.read(16))
-        if magic != 2051:
-            raise ValueError(f"magic number mismatch: got {magic}, expected 2051")
-        buffer = file.read(length * rows * cols)
-        array = np.frombuffer(buffer, dtype=np.uint8)
-    return array.reshape(length, rows, cols) / 255
+        Args:
+            path (str): Path to the file.
 
-def plot_images(images):
-    """Plot images one after another.
+        Raises:
+            ValueError: If the magic number read from the file is not equal to the expected number.
 
-    Args:
-        images (list): Images to be plotted.
-    """
-    for image in images:
-        plt.imshow(image[0])
-        plt.set_cmap("binary")
-        plt.colorbar()
-        plt.title(image[1])
+        Returns:
+            ndarray: The labels.
+        """
+        with gzip.open(path, 'rb') as file:
+            magic, length = struct.unpack('>II', file.read(8))
+            ex = 2049
+            if magic != ex:
+                raise ValueError(f"magic number mismatch: got {magic}, expected {ex}")
+            buffer = file.read(length)
+            array = np.frombuffer(buffer, dtype=np.uint8)
+        return array
+
+    @classmethod
+    def load_images(cls, path):
+        """Load the handwritten digits from a gz compressed file.
+
+        Args:
+            path (str): Path to the file.
+
+        Raises:
+            ValueError: If the magic number read from the file is not equal to the expected number.
+
+        Returns:
+            ndarray: The images.
+        """
+        with gzip.open(path, 'rb') as file:
+            magic, length, rows, cols = struct.unpack('>IIII', file.read(16))
+            ex = 2051
+            if magic != ex:
+                raise ValueError(f"magic number mismatch: got {magic}, expected {ex}")
+            buffer = file.read(length * rows * cols)
+            array = np.frombuffer(buffer, dtype=np.uint8)
+        return array.reshape(length, rows, cols) / 255
+
+    @classmethod
+    def plot_images(cls, images):
+        """Plot a sequence of images.
+
+        Args:
+            images (list[ndarray]): Images to be plotted.
+        """
+        with plt.ion():
+            i = 0
+            while True:
+                plt.imshow(images[i][0])
+                plt.title(images[i][1])
+                plt.set_cmap("binary")
+                plt.colorbar()
+                accepted = ["d", "f", ""]
+                prompt = "\"f\" to show next, \"d\" to show previous, blank to exit"
+                action = cls.ask_string(prompt, accepted)
+                if action == "d":
+                    if i > 0:
+                        i -= 1
+                elif action == "f":
+                    if i < len(images) - 1:
+                        i += 1
+                elif action == "":
+                    plt.close("all")
+                    break
+                plt.close()
+
+    @classmethod
+    def plot_error(cls, errors):
+        """Plot the average error of each epoch during training.
+
+        Args:
+            error (list[float]): Error to be plotted.
+        """
+        plt.plot(range(1, len(errors) + 1), errors, marker="o")
+        ticks = list(range(0, len(errors) + 1, math.ceil(len(errors) / 10)))[1:]
+        if ticks[0] != 1:
+            ticks = [1] + ticks
+        if ticks[-1] != len(errors):
+            ticks = ticks + [len(errors)]
+        plt.xticks(ticks)
+        plt.title("Average error during training")
+        plt.xlabel("Epochs")
+        plt.ylabel("Error")
         plt.show()
 
-def plot_error(error):
-    """Plot the average errors per epoch during training.
+    @classmethod
+    def ask_string(cls, prompt, accepted):
+        """Ask the user for string input.
 
-    Args:
-        error (list): Error to be plotted.
-    """
-    plt.plot(range(1, len(error) + 1), error)
-    ticks = list(range(0, len(error) + 1, math.ceil(len(error) / 10)))[1:]
-    if ticks[0] != 1:
-        ticks = [1] + ticks
-    if ticks[-1] != len(error):
-        ticks = ticks + [len(error)]
-    plt.xticks(ticks)
-    plt.title("Average error during training")
-    plt.xlabel("Epochs")
-    plt.ylabel("Error")
-    plt.show()
+        Try again if the user input is not in the list of accepted strings.
 
-def train(nn, images, labels):
-    """Train the network to recognize handwritten digits.
+        Args:
+            prompt (str): Prompt to be displayed to the user.
+            accepted (list[str]): Valid strings that are accepted as input.
 
-    Args:
-        nn (Network): Neural network to be trained.
-        images (ndarray): Images to be used in training.
-        labels (ndarray): Labels to the images.
+        Returns:
+            str: Accepted user input.
+        """
+        accepted = [text.casefold() for text in accepted]
+        result = input(prompt + ": ").casefold()
+        while result not in accepted:
+            result = input("Try again: ")
+        return result
 
-    Returns:
-        list: Average errors per epoch during training.
-    """
-    print("Training started.")
-    training_data = []
-    for i in range(len(labels)):
-        inputs = images[i]
-        outputs = np.array([1 if j == labels[i] else 0 for j in range(nn.shape[-1])])
-        training_data.append((inputs.reshape((-1, 1)), outputs.reshape((-1, 1))))
-    errors = []
-    print("1/2")
-    errors += nn.train(training_data, 10, batch_size=1, learning_rate=0.1)
-    print("2/2")
-    errors += nn.train(training_data, 10, batch_size=10, learning_rate=0.1)
-    print("Training finished.")
-    return errors
+    @classmethod
+    def ask_input(cls, prompt, datatype, default):
+        """Ask the user for input casted into specific datatype.
 
-def test(nn, images, labels):
-    """Test how well the network is able to recognize handwritten digits.
+        Try again if the user input is not castable to the datatype.
 
-    Args:
-        nn (Network): Neural network to be tested.
-        images (ndarray): Images to be used in testing.
-        labels (ndarray): Labels to the images.
+        Args:
+            prompt (str): Prompt to be displayed to the user.
+            datatype (class): Datatype the input is casted into.
+            default (Any): Default value (used when the user inputs empty string).
 
-    Returns:
-        tuple: Contains two lists, the first one contains images classified incorrectly and the
-          second one contains images classifiend correctly.
-    """
-    print("Testing started.")
-    right = []
-    wrong = []
-    for i, image in enumerate(images):
-        label = labels[i]
-        outputs = nn.forward(image)
-        guess = np.argmax(outputs)
-        if guess != label:
-            wrong.append((image, f"Guess: {guess}, Actually: {label}"))
-        else:
-            right.append((image, f"{label}"))
-    percent = len(right) / len(labels) * 100
-    print(f"The network classified {len(right)}/{len(labels)} ({percent:0.2f}%) correctly.")
-    print("Testing finished.")
-    return wrong, right
+        Returns:
+            Any: Accepted user input or default value.
+        """
+        result = input(prompt + f" ({default}): ")
+        while True:
+            if not result:
+                return default
+            try:
+                result = datatype(result)
+            except ValueError:
+                pass
+            else:
+                return result
+            result = input("Try again: ")
 
-def main():
-    """The main function.
+    def train(self):
+        """Train the network to recognize handwritten digits and plot the error afterwards.
 
-    Create a new neural network, load the mnist handwritten digits, test how well the network
-    performs before training, train the network, test how well the network performs after training,
-    and plot the images that the network was not able to classify correctly.
-    """
-    nn = Network((784, 28, 28, 28, 10))
+        Ask the user for preferred hyperparameters and suggest the default values.
+        """
+        epochs = self.ask_input("How many epochs", int, 10)
+        b_size = self.ask_input("Batch size", int, 1)
+        l_rate = self.ask_input("Learning rate", float, 0.1)
+        print("Training started, please wait.")
+        errors = self.nn.train(self.training_data, epochs, batch_size=b_size, learning_rate=l_rate)
+        print("Training finished.")
+        print("Plotting error, close the figure to continue.")
+        self.plot_error(errors)
 
-    path = "../mnist/"
-    train_images = load_images(path + "train-images-idx3-ubyte.gz")
-    train_labels = load_labels(path + "train-labels-idx1-ubyte.gz")
-    test_images = load_images(path + "t10k-images-idx3-ubyte.gz")
-    test_labels = load_labels(path + "t10k-labels-idx1-ubyte.gz")
+    def test(self):
+        """Test how well the network is able to recognize handwritten digits.
 
-    print("Before training:")
-    test(nn, test_images, test_labels)
-    print()
-    error = train(nn, train_images, train_labels)
-    print("Plotting error.")
-    plot_error(error)
-    print()
-    print("After training:")
-    results = test(nn, test_images, test_labels)
-    print()
-    print("Plotting images classified incorrectly.")
-    print("To show the next image, close the previous one. Quit with ctrl + c")
-    plot_images(results[0])
+        Offer to plot images classified correctly or incorrectly afterwards.
+        """
+        print("Testing started.")
+        right = []
+        wrong = []
+        for image, label in self.testing_data:
+            outputs = self.nn.forward(image)
+            guess = np.argmax(outputs)
+            if guess != label:
+                wrong.append((image, f"Guess: {guess}, Actually: {label}"))
+            else:
+                right.append((image, f"{label}"))
+        data_length = len(self.testing_data)
+        percent = len(right) / data_length * 100
+        print(f"The network classified {len(right)}/{data_length} ({percent:0.2f}%) correctly.")
+        print("Testing finished.")
+        prompt = "\"w\" to show images classified wrong, \"r\" to show images classified right"
+        prompt += ", blank to skip"
+        while True:
+            action = self.ask_string(prompt, ["w", "r", ""])
+            if action == "w":
+                self.plot_images(wrong)
+            elif action == "r":
+                self.plot_images(right)
+            elif action == "":
+                break
+
+    def main(self):
+        """The main method that starts the UI.
+        """
+        while self.run:
+            accepted = ["test", "train", "exit"]
+            action = self.ask_string("\nTest, train, or exit", accepted)
+            if action == "test":
+                self.test()
+            elif action == "train":
+                self.train()
+            elif action == "exit":
+                self.exit()
+
+    def exit(self):
+        """Quit the program.
+        """
+        self.run = False
+        print("Terminating...")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        ui = Digits("mnist")
+        ui.main()
+    except KeyboardInterrupt:
+        ui.exit()
