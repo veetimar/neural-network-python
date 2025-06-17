@@ -16,7 +16,7 @@ class Network:
     data and should be able to generalize it to cases not seen before.
 
     Attributes:
-        shape (tuple): Information regarding the amount of layers and neurons in the network.
+        shape (tuple): Information regarding the number of layers and neurons in the network.
         values (list): Values of every neuron in the network.
         activations (list): Values but after applying the activation function.
         gradients (list): Used during backpropagation to speed up and simplify calculations.
@@ -30,11 +30,11 @@ class Network:
         """Create a new neural network.
 
         Args:
-            shape (Iterable[int]): The length of this parameter is the amount of layers in the
-             network and the elements are the amounts of neurons in each layer respectively.
+            shape (Iterable[int]): The length of this parameter is the number of layers in the
+             network and the elements are the numbers of neurons in each layer respectively.
 
         Raises:
-            ValueError: If the amount of layers is under 2 or the amount of neurons in a layer is
+            ValueError: If the number of layers is under 2 or the number of neurons in a layer is
               under 1.
         """
         if len(shape) < 2 or not all(size > 0 for size in shape):
@@ -58,7 +58,8 @@ class Network:
 
     @classmethod
     def glorot(cls, old_size, size, next_size):
-        """Uniform Glorot (Xavier) weight initialization for layers with sigmoid activation funcion.
+        """Uniform Glorot (Xavier) weight initialization for layers with sigmoid-like activation
+        function.
 
         Args:
             size (int): The size of the current layer.
@@ -114,19 +115,19 @@ class Network:
 
     @classmethod
     def elu(cls, array):
-        """Apply the elu function element-wise to a vector.
+        """Apply the ELU function element-wise to a vector.
 
         Args:
             array (ndarray): The array to be worked on.
 
         Returns:
-            ndarray: Array like the original array but elu applied to the elements.
+            ndarray: Array like the original array but ELU applied to the elements.
         """
         return np.where(array >= 0, array, np.exp(array) - 1)
 
     @classmethod
     def elu_derivative(cls, array):
-        """Apply the derivative of elu function element-wise to a vector.
+        """Apply the derivative of ELU function element-wise to a vector.
 
         Args:
             array (ndarray): The array to be worked on.
@@ -218,8 +219,8 @@ class Network:
         """Train the neural network.
 
         Args:
-            training_data (list): Contains tuples containing input and output examples. The first
-              element of the tuple is inputs to the network and the second element is expected
+            training_data (list[tuple]): Contains tuples containing input and output examples. The
+              first element of the tuple is inputs to the network and the second element is expected
               outputs.
             epochs (int): Number of epochs (how many times the whole dataset is iterated through).
             learning_rate (float, optional): Determines how fast the network tries to learn. The
@@ -230,17 +231,17 @@ class Network:
               length of the training data. Defaults to -1.
 
         Raises:
-            ValueError: If the given amount of epochs is not positive.
+            ValueError: If the given number of epochs is not positive.
             ValueError: If the given batch size is not positive (-1 allowed) or is bigger than the
               length of the training data.
             ValueError: If the length of a training example is not 2 (contains something else than
               inputs and expected outputs).
 
         Returns:
-            list: Errors of each epoch in order from first to last.
+            list[float]: Errors of each epoch in order from first to last.
         """
         if epochs < 1:
-            raise ValueError("illegal amount of epochs")
+            raise ValueError("illegal number of epochs")
         if batch_size == -1:
             batch_size = len(training_data)
         if not 0 < batch_size <= len(training_data):
@@ -293,7 +294,7 @@ class Network:
             path (str, optional): Path to the directory containing the files. Defaults to "".
 
         Raises:
-            ValueError: If the shape of loaded weights and biases do not fit to the network.
+            ValueError: If the shape of loaded weights or biases do not fit the network.
         """
         if path and not path.endswith("/"):
             path += "/"
@@ -302,11 +303,11 @@ class Network:
         weights += np.load(path + "weights.npz").values()
         biases += np.load(path + "biases.npz").values()
         if len(weights) != len(self.shape) or len(biases) != len(self.shape):
-            raise ValueError("loaded weights or biases do not fit to the network")
+            raise ValueError("loaded weights or biases do not fit the network")
         shape = self.shape
         for i in range(1, len(self.shape)):
             if weights[i].shape != (shape[i], shape[i - 1]) or biases[i].shape != (shape[i], 1):
-                raise ValueError("loaded weights or biases do not fit to the network")
+                raise ValueError("loaded weights or biases do not fit the network")
         self.weights = weights
         self.biases = biases
 
