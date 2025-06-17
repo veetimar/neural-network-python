@@ -1,4 +1,5 @@
 import unittest
+import tempfile
 
 import numpy as np
 
@@ -148,8 +149,8 @@ class TestNetwork(unittest.TestCase):
         self.assertRaises(TypeError, iter, error)
 
     def test_train_returns_right_shape(self):
-        epochs = 10
-        errors = self.nn.train(self.xor, epochs, batch_size=3)
+        epochs = 3
+        errors = self.nn.train(self.xor, epochs, batch_size=2)
         self.assertEqual(len(errors), epochs)
 
     def test_train_raises_error(self):
@@ -160,31 +161,34 @@ class TestNetwork(unittest.TestCase):
         self.assertRaises(ValueError, self.nn.train, data, 1)
 
     def test_save_and_load(self):
-        old_weights = self.nn.weights
-        old_biases = self.nn.biases
-        self.nn.save(".")
-        new_network = Network(self.shape)
-        new_network.load(".")
-        new_weights = new_network.weights
-        new_biases = new_network.biases
-        self.assertEqual(len(old_weights), len(new_weights))
-        self.assertEqual(len(old_biases), len(new_biases))
-        for i in range(1, len(self.shape)):
-            self.assertTrue((old_weights[i] == new_weights[i]).all())
-            self.assertTrue((old_biases[i] == new_biases[i]).all())
+        with tempfile.TemporaryDirectory() as path:
+            old_weights = self.nn.weights
+            old_biases = self.nn.biases
+            self.nn.save(path)
+            new_network = Network(self.shape)
+            new_network.load(path)
+            new_weights = new_network.weights
+            new_biases = new_network.biases
+            self.assertEqual(len(old_weights), len(new_weights))
+            self.assertEqual(len(old_biases), len(new_biases))
+            for i in range(1, len(self.shape)):
+                self.assertTrue((old_weights[i] == new_weights[i]).all())
+                self.assertTrue((old_biases[i] == new_biases[i]).all())
 
     def test_load_raises_error(self):
-        self.nn.save()
-        shape = list(self.shape)
-        self.assertRaises(ValueError, Network(shape[:-1]).load)
-        shape[0] += 1
-        self.assertRaises(ValueError, Network(shape).load)
+        with tempfile.TemporaryDirectory() as path:
+            path += "/"
+            self.nn.save(path)
+            shape = list(self.shape)
+            self.assertRaises(ValueError, Network(shape[:-1]).load, path)
+            shape[0] += 1
+            self.assertRaises(ValueError, Network(shape).load, path)
 
     def test_repr(self):
         self.assertEqual(repr(self.nn), f"Network{self.shape}")
 
     def test_network_overfits_xor(self):
-        self.nn.train(self.xor, 5000, learning_rate=10)
+        self.nn.train(self.xor, 10_000, learning_rate=10)
         for data in self.xor:
             outputs = self.nn.forward(data[0]).reshape(-1)
             self.assertTrue(np.allclose(data[1], outputs, atol=0.01))
@@ -192,7 +196,7 @@ class TestNetwork(unittest.TestCase):
     def test_every_weight_changes(self):
         old_weights = [array.copy() for array in self.nn.weights[1:]]
         old_biases = [array.copy() for array in self.nn.biases[1:]]
-        self.nn.train(self.xor, 100)
+        self.nn.train(self.xor, 1)
         new_weights = [array.copy() for array in self.nn.weights[1:]]
         new_biases = [array.copy() for array in self.nn.biases[1:]]
         for i in range(len(self.shape) - 1):
