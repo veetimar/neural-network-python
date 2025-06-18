@@ -21,7 +21,19 @@ ja vertaamalla että verkkojen painot ovat tämän jälkeen täysin samalaiset.
 Testeissä varmistetaan myös, että neuroverkko oppii täysin (overfit) xor-portin toiminnan,
 kaikki painot muuttuvat koulutuksen aikana ja backpropagation ei vaikuta input-kerroksen attribuutteihin.
 
-Neuroverkko saavuttaa MNIST-käsinkirjoitettujen numeroiden datasetissä noin 97% tarkkuuden käymällä koulutusdata 20 kertaa läpi
-(alle 2 minuutin koulutuksella). Jo tästä voidaan päätellä, että neuroverkko toimii suurinpiirtein oikein.
+Neuroverkko saavuttaa MNIST-käsinkirjoitettujen numeroiden datasetissä noin 97% tarkkuuden käymällä koulutusdata 10 kertaa läpi
+(1,5 minuutin koulutuksella). Lisäksi käymällä koulutusdata vain kerran läpi (noin 10 sekunnin koulutuksella)
+saavutetaan jo noin 94% tarkkuus. Jo tästä voidaan päätellä, että neuroverkko toimii suurinpiirtein oikein.
+
+Mainittu noin 97% tarkkuus saavutetaan kouluttamalla neuroverkkoa kerran ohjelman itse ehdottamilla hyperparametreilla.
+Pienempi tarkkuus saavutetaan kouluttamalla verkkoa kerran seuraavilla hyperparametreilla:
+
+- Epochs 1
+- Batch size 1
+- Learning rate 0.1
+
+Myös yli 98% tarkkuus on saavutettu,
+mutta vain lisäämällä verkolle yksi ylimääräinen 112:n neuronin kerros heti ensimmäisen kerroksen jälkeen,
+jolloin koulutus muuttui kuitenkin jo häiritsevän hitaaksi vaaditun laskentatehon kasvaessa huomattavasti.
 
 Testikattavuutta mitattu coverage-työkalulla. Kattavuus 100%
