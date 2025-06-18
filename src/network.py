@@ -215,7 +215,7 @@ class Network:
                 self.gradients[i - 1] *= self.elu_derivative(self.values[i - 1])
         return error
 
-    def train(self, training_data, epochs, batch_size=-1, learning_rate=0.1):
+    def train(self, training_data, epochs, batch_size=-1, learning_rate=0.1, out=False):
         """Train the neural network.
 
         Args:
@@ -229,6 +229,8 @@ class Network:
             batch_size (int, optional): Determines how many training examples are processed before
               updating the weights. Setting this to -1 will set batch size to maximum i.e. the
               length of the training data. Defaults to -1.
+            out (bool, optional): Controls whether the average error of each epoch epoch is also
+              printed to the terminal during training.
 
         Raises:
             ValueError: If the given number of epochs is not positive.
@@ -238,7 +240,7 @@ class Network:
               inputs and expected outputs).
 
         Returns:
-            list[float]: Errors of each epoch in order from first to last.
+            list[float]: Average error of each epoch in order from first to last.
         """
         if epochs < 1:
             raise ValueError("illegal number of epochs")
@@ -250,16 +252,19 @@ class Network:
             random.shuffle(training_data)
         learning_rate /= batch_size
         errors = []
-        for _ in range(epochs):
+        for i in range(epochs):
             epoch_error = 0
-            for i, sample in enumerate(training_data):
-                if i > 0 and i % batch_size == 0:
+            for j, sample in enumerate(training_data):
+                if j > 0 and j % batch_size == 0:
                     self.update(learning_rate)
                 if len(sample) != 2:
                     raise ValueError("illegal structure in training data")
                 epoch_error += self.backward(sample[0], sample[1])
             self.update(learning_rate)
-            errors.append(epoch_error / len(training_data))
+            epoch_error /= len(training_data)
+            if out:
+                print(f"Epoch {i + 1} average error: {epoch_error}")
+            errors.append(epoch_error)
         return errors
 
     def update(self, learning_rate):

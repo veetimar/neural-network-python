@@ -204,7 +204,7 @@ class TestNetwork(unittest.TestCase):
             self.assertTrue((old_biases[i] != new_biases[i]).all())
 
     def test_backpropagation_does_not_touch_input_layer(self):
-        self.nn.train(self.xor, 1)
+        self.nn.train(self.xor, 1, out=True)
         self.assertIsNone(self.nn.gradients[0])
         self.assertIsNone(self.nn.weights[0])
         self.assertIsNone(self.nn.biases[0])

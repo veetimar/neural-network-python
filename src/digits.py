@@ -194,10 +194,10 @@ class Digits:
         Ask the user for preferred hyperparameters and suggest the default values.
         """
         epochs = self.ask_input("How many epochs", int, 10)
-        b_size = self.ask_input("Batch size", int, 1)
-        l_rate = self.ask_input("Learning rate", float, 0.1)
+        batch_size = self.ask_input("Batch size", int, 1)
+        learning_rate = self.ask_input("Learning rate", float, 0.1)
         print("Training started, please wait.")
-        errors = self.nn.train(self.training_data, epochs, batch_size=b_size, learning_rate=l_rate)
+        errors = self.nn.train(self.training_data, epochs, batch_size, learning_rate, True)
         print("Training finished.")
         print("Plotting error, close the figure to continue.")
         self.plot_error(errors)
