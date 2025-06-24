@@ -30,7 +30,7 @@ class Network:
         """Create a new neural network.
 
         Args:
-            shape (Iterable[int]): The length of this parameter is the number of layers in the
+            shape (Sequence[int]): The length of this parameter is the number of layers in the
              network and the elements are the numbers of neurons in each layer respectively.
 
         Raises:
@@ -169,7 +169,7 @@ class Network:
         """Forward inputs through the network and return outputs.
 
         Args:
-            inputs (Iterable[float]): The inputs to be forwarded. Should be floats between 0 and 1.
+            inputs (Sequence[float]): The inputs to be forwarded. Should be floats between 0 and 1.
               The length of this parameter must be equal to the length of the input layer.
 
         Returns:
@@ -188,13 +188,13 @@ class Network:
     def backward(self, inputs, expected):
         """Backpropagation. 
 
-        Adjust the weights and biases of the network in such a way that the provided inputs will
+        Adjust the parameters of the network in such a way that the provided inputs will
         produce outputs more like the expected outputs. Run update afterwards to apply the changes.
 
         Args:
-            inputs (Iterable[float]): Inputs to the network. Should be floats between 0 and 1. The
+            inputs (Sequence[float]): Inputs to the network. Should be floats between 0 and 1. The
               length of this parameter must be equal to the length of the input layer.
-            expected (Iterable[float]): The expected outputs from the passed inputs. Should be
+            expected (Sequence[float]): The expected outputs from the passed inputs. Should be
               floats between 0 and 1. The length of this parameter must be equal to the length of
               the output layer.
 
@@ -223,12 +223,12 @@ class Network:
               first element of the tuple is inputs to the network and the second element is expected
               outputs.
             epochs (int): Number of epochs (how many times the whole dataset is iterated through).
-            learning_rate (float, optional): Determines how fast the network tries to learn. The
-              bigger this value the bigger steps the network takes towards the target. Defaults to
-              0.01.
             batch_size (int, optional): Determines how many training examples are processed before
               updating the weights. Setting this to -1 will set batch size to maximum i.e. the
               length of the training data. Defaults to -1.
+            learning_rate (float, optional): Determines how fast the network tries to learn. The
+              bigger this value the bigger steps the network takes towards the target. Defaults to
+              0.1.
             out (bool, optional): Controls whether the average error of each epoch epoch is also
               printed to the terminal during training.
 
@@ -268,7 +268,7 @@ class Network:
         return errors
 
     def update(self, learning_rate):
-        """Update the weights and biases and clear the delta variables.
+        """Update the parameters and clear the delta variables.
 
         Args:
             learning_rate (float): Determines how fast the network tries to learn. The bigger this
@@ -281,7 +281,7 @@ class Network:
             self.delta_biases[i].fill(0)
 
     def save(self, path=""):
-        """Save current weights and biases to the disk.
+        """Save current parameters to the disk.
 
         Args:
             path (str, optional): Path to the directory where the files will be saved. Path must
@@ -293,13 +293,13 @@ class Network:
         np.savez_compressed(path + "biases.npz", *self.biases[1:])
 
     def load(self, path=""):
-        """Load current weights and biases from the disk.
+        """Load the parameters from the disk.
 
         Args:
             path (str, optional): Path to the directory containing the files. Defaults to "".
 
         Raises:
-            ValueError: If the shape of loaded weights or biases do not fit the network.
+            ValueError: If the shape of loaded parameters do not fit the network.
         """
         if path and not path.endswith("/"):
             path += "/"
