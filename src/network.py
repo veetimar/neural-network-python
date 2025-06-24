@@ -258,7 +258,9 @@ class Network:
                 if j > 0 and j % batch_size == 0:
                     self.update(learning_rate)
                 if len(sample) != 2:
-                    raise ValueError("illegal structure in training data")
+                    msg = "illegal structure in training data"
+                    msg += f": expected sample length 2, got {len(sample)}"
+                    raise ValueError(msg)
                 epoch_error += self.backward(sample[0], sample[1])
             self.update(learning_rate)
             epoch_error /= len(training_data)
@@ -308,11 +310,15 @@ class Network:
         weights += np.load(path + "weights.npz").values()
         biases += np.load(path + "biases.npz").values()
         if len(weights) != len(self.shape) or len(biases) != len(self.shape):
-            raise ValueError("loaded weights or biases do not fit the network")
+            msg = "loaded parameters do not fit the network"
+            msg += f": expected parameters suitable for network shape {self.shape}"
+            raise ValueError(msg)
         shape = self.shape
         for i in range(1, len(self.shape)):
             if weights[i].shape != (shape[i], shape[i - 1]) or biases[i].shape != (shape[i], 1):
-                raise ValueError("loaded weights or biases do not fit the network")
+                msg = "loaded parameters do not fit the network"
+                msg += f": expected parameters suitable for network shape {self.shape}"
+                raise ValueError(msg)
         self.weights = weights
         self.biases = biases
 
