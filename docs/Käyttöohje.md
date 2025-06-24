@@ -12,8 +12,9 @@ Suorita ohjelma
 poetry run python src/digits.py
 ```
 
-Suorittamisen jälkeen sinun tulee syöttää ohjelmalle teksti "train", "test" tai "exit". Exit sulkee ohjelman,
+Suorittamisen jälkeen sinun tulee syöttää ohjelmalle teksti "train", "test", "exit" "save" tai "load". Exit sulkee ohjelman,
 train siirtyy koulutukseen ja test testaa verkon kykyä tunnistaa käsinkirjoitettuja numeroita.
+Save tallentaa verkon parametrit tiedostoon ja load lataa ne tiedostosta.
 
 Valitessasi "train", ohjelma alkaa kysellä hyperparametreja koulutusta varten. Kysymyksien yhteydessä näkyy myös suluilla vakioarvo,
 jota käytetään jättäessäsi kentän tyhjäksi. Koulutuksen alkaessa tulee vain odottaa, että koulutus saadaan loppuun.
