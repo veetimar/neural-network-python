@@ -236,14 +236,24 @@ class Digits:
         """The main method that starts the UI.
         """
         while self.run:
-            accepted = ["test", "train", "exit"]
-            action = self.ask_string("\nTest, train, or exit", accepted)
+            accepted = ["test", "train", "exit", "save", "load"]
+            action = self.ask_string("\nTest, train, exit, save, or load", accepted)
             if action == "test":
                 self.test()
             elif action == "train":
                 self.train()
             elif action == "exit":
                 self.exit()
+            elif action == "save":
+                self.nn.save()
+                print("Saved.")
+            elif action == "load":
+                try:
+                    self.nn.load()
+                    print("Loaded.")
+                except FileNotFoundError as e:
+                    print("File not found:")
+                    print(e)
 
     def exit(self):
         """Quit the program.
