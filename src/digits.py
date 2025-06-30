@@ -157,10 +157,11 @@ class Digits:
             str: Accepted user input.
         """
         accepted = [text.casefold() for text in accepted]
-        result = input(prompt + ": ").casefold()
-        while result not in accepted:
-            result = input("Try again: ")
-        return result
+        while True:
+            result = input(prompt + ": ").casefold()
+            if result in accepted:
+                return result
+            print("Trying again.")
 
     @classmethod
     def ask_input(cls, prompt, datatype, default):
@@ -176,17 +177,15 @@ class Digits:
         Returns:
             Any: Accepted user input or default value.
         """
-        result = input(prompt + f" ({default}): ")
         while True:
+            result = input(prompt + f" ({default}): ")
             if not result:
                 return default
             try:
-                result = datatype(result)
+                return datatype(result)
             except ValueError:
                 pass
-            else:
-                return result
-            result = input("Try again: ")
+            print("Trying again.")
 
     def train(self):
         """Train the network to recognize handwritten digits and plot the error afterwards.
