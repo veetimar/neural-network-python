@@ -245,11 +245,11 @@ class Digits:
                 self.exit()
             elif action == "save":
                 self.nn.save()
-                print("Saved.")
+                print("Saved parameters to the disk.")
             elif action == "load":
                 try:
                     self.nn.load()
-                    print("Loaded.")
+                    print("Loaded parameters from the disk.")
                 except FileNotFoundError as e:
                     print("File not found:")
                     print(e)
