@@ -249,6 +249,7 @@ class Network:
         if not 0 < batch_size <= len(training_data):
             raise ValueError("illegal batch size")
         if batch_size != len(training_data):
+            training_data = list(training_data)
             random.shuffle(training_data)
         learning_rate /= batch_size
         errors = []
