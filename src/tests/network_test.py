@@ -17,7 +17,6 @@ class TestNetwork(unittest.TestCase):
         self.assertRaises(ValueError, Network, (1,))
 
     def test_constructor_sets_attributes_shape_right(self):
-        self.assertEqual(len(self.nn.values), len(self.shape))
         self.assertEqual(len(self.nn.activations), len(self.shape))
         self.assertEqual(len(self.nn.gradients), len(self.shape))
         self.assertEqual(len(self.nn.weights), len(self.shape))
@@ -67,7 +66,7 @@ class TestNetwork(unittest.TestCase):
         self.assertEqual(out_3.shape, in_3.shape)
 
     def test_sigmoid_derivative_returns_right_value(self):
-        inputs = np.array([-1, 0, 1])
+        inputs = self.nn.sigmoid(np.array([-1, 0, 1]))
         outputs = self.nn.sigmoid_derivative(inputs)
         expected = np.array([0.2, 0.25, 0.2])
         self.assertTrue(np.allclose(outputs, expected, atol=0.01))
@@ -101,7 +100,7 @@ class TestNetwork(unittest.TestCase):
         self.assertEqual(out_3.shape, in_3.shape)
 
     def test_elu_derivative_returns_right_value(self):
-        inputs = np.array([-1, 0, 1])
+        inputs = self.nn.elu(np.array([-1, 0, 1]))
         outputs = self.nn.elu_derivative(inputs)
         expected = np.array([0.37, 1, 1])
         self.assertTrue(np.allclose(outputs, expected, atol=0.01))

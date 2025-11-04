@@ -17,8 +17,7 @@ class Network:
 
     Attributes:
         shape (tuple): Information regarding the number of layers and neurons in the network.
-        values (list): Values of every neuron in the network.
-        activations (list): Values but after applying the activation function.
+        activations (list): Activations of every neuron in the network.
         gradients (list): Used during backpropagation to speed up and simplify calculations.
         weights (list): Weights of every neuron in the network.
         biases (list): Biases of every neuron in the network.
@@ -40,7 +39,6 @@ class Network:
         if len(shape) < 2 or not all(size > 0 for size in shape):
             raise ValueError("illegal shape for the neural network")
         self.shape = tuple(shape)
-        self.values = [None for _ in range(len(shape))]
         self.activations = [None for _ in range(len(shape))]
         self.gradients = [None for _ in range(len(shape))]
         self.weights = [None]
@@ -96,22 +94,21 @@ class Network:
             array (ndarray): The array to be worked on.
 
         Returns:
-            ndarray: Array like the original array but sigmoid applied to the elements.
+            ndarray: Array like the original array, with sigmoid applied to its elements.
         """
         return 1 / (1 + np.exp(-array))
 
     @classmethod
-    def sigmoid_derivative(cls, array):
-        """Apply the derivative of sigmoid function element-wise to a vector.
+    def sigmoid_derivative(cls, activations):
+        """Compute sigmoid derivative element-wise given a vector of sigmoid activations.
 
         Args:
-            array (ndarray): The array to be worked on.
+            array (ndarray): A vector of sigmoid activations.
 
         Returns:
-            ndarray: Array like the original array but the derivative applied to the elements.
+            ndarray: Array like the original array, containing the derivatives of each element.
         """
-        x = cls.sigmoid(array)
-        return x * (1 - x)
+        return activations * (1 - activations)
 
     @classmethod
     def elu(cls, array):
@@ -121,21 +118,21 @@ class Network:
             array (ndarray): The array to be worked on.
 
         Returns:
-            ndarray: Array like the original array but ELU applied to the elements.
+            ndarray: Array like the original array, with ELU applied to its elements.
         """
         return np.where(array >= 0, array, np.exp(array) - 1)
 
     @classmethod
-    def elu_derivative(cls, array):
-        """Apply the derivative of ELU function element-wise to a vector.
+    def elu_derivative(cls, activations):
+        """Compute ELU derivative element-wise given a vector of ELU activations.
 
         Args:
-            array (ndarray): The array to be worked on.
+            array (ndarray): A vector of ELU activations.
 
         Returns:
-            ndarray: Array like the original array but the derivative applied to the elements.
+            ndarray: Array like the original array, containing the derivatives of each element.
         """
-        return np.where(array >= 0, 1, np.exp(array))
+        return np.where(activations >= 0, 1, activations + 1)
 
     @classmethod
     def mean_squared(cls, outputs, expected):
@@ -173,16 +170,15 @@ class Network:
               The length of this parameter must be equal to the length of the input layer.
 
         Returns:
-            ndarray: Values of the output neurons after the forwarding.
+            ndarray: Activations of the output neurons after the forwarding.
         """
         self.activations[0] = np.reshape(inputs, (self.shape[0], 1))
         for i in range(1, len(self.shape)):
-            vector = self.weights[i] @ self.activations[i - 1] + self.biases[i]
-            self.values[i] = vector
+            values = self.weights[i] @ self.activations[i - 1] + self.biases[i]
             if i != len(self.shape) - 1:
-                self.activations[i] = self.elu(vector)
+                self.activations[i] = self.elu(values)
             else:
-                self.activations[i] = self.sigmoid(vector)
+                self.activations[i] = self.sigmoid(values)
         return self.activations[-1]
 
     def backward(self, inputs, expected):
@@ -206,13 +202,13 @@ class Network:
         outputs = self.forward(inputs)
         error = self.mean_squared(outputs, expected)
         self.gradients[-1] = self.mean_squared_gradient(outputs, expected)
-        self.gradients[-1] *= self.sigmoid_derivative(self.values[-1])
+        self.gradients[-1] *= self.sigmoid_derivative(self.activations[-1])
         for i in range(len(self.shape) - 1, 0, -1):
             self.delta_biases[i] += self.gradients[i]
             self.delta_weights[i] += self.gradients[i] @ self.activations[i - 1].T
             if i != 1:
                 self.gradients[i - 1] = self.weights[i].T @ self.gradients[i]
-                self.gradients[i - 1] *= self.elu_derivative(self.values[i - 1])
+                self.gradients[i - 1] *= self.elu_derivative(self.activations[i - 1])
         return error
 
     def train(self, training_data, epochs, batch_size=-1, learning_rate=0.1, out=False):
