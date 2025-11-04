@@ -6,9 +6,19 @@ authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = "^3.10"
+requires-python = "^3.11"
 dependencies = [
-    "numpy (>=2.2.6,<3.0.0)"
+    "numpy (>=2.3.0,<3.0.0)"
+]
+
+[dependency-groups]
+dev = [
+    "pylint (>=4.0.0,<5.0.0)",
+    "pytest (>=8.4.0,<9.0.0)",
+    "coverage (>=7.11.0,<8.0.0)"
+]
+run = [
+    "matplotlib (>=3.10.0,<4.0.0)"
 ]
 
 
@@ -19,14 +29,3 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 package-mode = false
-
-
-[tool.poetry.group.dev.dependencies]
-pylint = "^3.3.7"
-pytest = "^8.3.5"
-coverage = "^7.8.0"
-
-
-[tool.poetry.group.run.dependencies]
-matplotlib = "^3.10.3"
-
