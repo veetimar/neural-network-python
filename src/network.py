@@ -211,7 +211,7 @@ class Network:
                 self.gradients[i - 1] *= self.elu_derivative(self.activations[i - 1])
         return error
 
-    def train(self, training_data, epochs, batch_size=-1, learning_rate=0.1, out=False):
+    def train(self, training_data, epochs, batch_size=-1, learning_rate=0.1, out=None):
         """Train the neural network.
 
         Args:
@@ -225,8 +225,7 @@ class Network:
             learning_rate (float, optional): Determines how fast the network tries to learn. The
               bigger this value the bigger steps the network takes towards the target. Defaults to
               0.1.
-            out (bool, optional): Controls whether the average error of each epoch epoch is also
-              printed to the terminal during training.
+            out (Callable, optional): A function for printing out the average error of each epoch.
 
         Raises:
             ValueError: If the given number of epochs is not positive.
@@ -262,7 +261,7 @@ class Network:
             self.update(learning_rate)
             epoch_error /= len(training_data)
             if out:
-                print(f"Epoch {i + 1} average error: {epoch_error}")
+                out(f"Epoch {i + 1} average error: {epoch_error}")
             errors.append(epoch_error)
         return errors
 

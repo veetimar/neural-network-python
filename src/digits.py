@@ -196,7 +196,7 @@ class Digits:
         batch_size = self.ask_input("Batch size", int, 1)
         learning_rate = self.ask_input("Learning rate", float, 0.1)
         print("Training started, please wait.")
-        errors = self.nn.train(self.training_data, epochs, batch_size, learning_rate, True)
+        errors = self.nn.train(self.training_data, epochs, batch_size, learning_rate, print)
         print("Training finished.")
         print("Plotting error, close the figure to continue.")
         self.plot_error(errors)

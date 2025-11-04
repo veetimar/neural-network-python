@@ -5,6 +5,13 @@ import numpy as np
 
 from network import Network
 
+class StubOut:
+    def __init__(self):
+        self.outputs = []
+
+    def print(self, msg):
+        self.outputs.append(msg)
+
 class TestNetwork(unittest.TestCase):
     def setUp(self):
         self.shape = (2, 3, 1)
@@ -159,6 +166,11 @@ class TestNetwork(unittest.TestCase):
         data[0] = ([0, 0], [1, 1], [0, 0])
         self.assertRaises(ValueError, self.nn.train, data, 1)
 
+    def test_train_prints_output(self):
+        stub = StubOut()
+        self.nn.train(self.xor, 2, out=stub.print)
+        self.assertEqual(len(stub.outputs), 2)
+
     def test_save_and_load(self):
         with tempfile.TemporaryDirectory() as path:
             old_weights = self.nn.weights
@@ -203,7 +215,7 @@ class TestNetwork(unittest.TestCase):
             self.assertTrue((old_biases[i] != new_biases[i]).all())
 
     def test_backpropagation_does_not_touch_input_layer(self):
-        self.nn.train(self.xor, 1, out=True)
+        self.nn.train(self.xor, 1)
         self.assertIsNone(self.nn.gradients[0])
         self.assertIsNone(self.nn.weights[0])
         self.assertIsNone(self.nn.biases[0])
