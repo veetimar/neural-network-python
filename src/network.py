@@ -6,6 +6,7 @@ This module contains the Network class that can be used to create a neural netwo
 
 import math
 import random
+import os
 
 import numpy as np
 
@@ -226,6 +227,7 @@ class Network:
               bigger this value the bigger steps the network takes towards the target. Defaults to
               0.1.
             out (Callable, optional): A function for printing out the average error of each epoch.
+              Defaults to None.
 
         Raises:
             ValueError: If the given number of epochs is not positive.
@@ -285,10 +287,8 @@ class Network:
             path (str, optional): Path to the directory where the files will be saved. Path must
               exist already. Defaults to "".
         """
-        if path and not path.endswith("/"):
-            path += "/"
-        np.savez_compressed(path + "weights.npz", *self.weights[1:])
-        np.savez_compressed(path + "biases.npz", *self.biases[1:])
+        np.savez_compressed(os.path.join(path, "weights.npz"), *self.weights[1:])
+        np.savez_compressed(os.path.join(path, "biases.npz"), *self.biases[1:])
 
     def load(self, path=""):
         """Load the parameters from the disk.
@@ -299,12 +299,10 @@ class Network:
         Raises:
             ValueError: If the shape of loaded parameters do not fit the network.
         """
-        if path and not path.endswith("/"):
-            path += "/"
         weights = [None]
         biases = [None]
-        weights += np.load(path + "weights.npz").values()
-        biases += np.load(path + "biases.npz").values()
+        weights += np.load(os.path.join(path, "weights.npz")).values()
+        biases += np.load(os.path.join(path, "biases.npz")).values()
         if len(weights) != len(self.shape) or len(biases) != len(self.shape):
             msg = "loaded parameters do not fit the network"
             msg += f": expected parameters suitable for network shape {self.shape}"

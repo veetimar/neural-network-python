@@ -8,6 +8,7 @@ and classify handwritten digits in the MNIST dataset.
 import struct
 import math
 import gzip
+import os
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,12 +36,10 @@ class Digits:
         """
         self.run = True
         self.nn = Network((784, 56, 28, 10))
-        if path and not path.endswith("/"):
-            path += "/"
-        train_images = self.load_images(path + "train-images-idx3-ubyte.gz")
-        train_labels = self.load_labels(path + "train-labels-idx1-ubyte.gz")
-        test_images = self.load_images(path + "t10k-images-idx3-ubyte.gz")
-        test_labels = self.load_labels(path + "t10k-labels-idx1-ubyte.gz")
+        train_images = self.load_images(os.path.join(path, "train-images-idx3-ubyte.gz"))
+        train_labels = self.load_labels(os.path.join(path, "train-labels-idx1-ubyte.gz"))
+        test_images = self.load_images(os.path.join(path, "t10k-images-idx3-ubyte.gz"))
+        test_labels = self.load_labels(os.path.join(path, "t10k-labels-idx1-ubyte.gz"))
         self.training_data = []
         self.testing_data = []
         for i, image in enumerate(train_images):

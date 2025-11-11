@@ -188,7 +188,6 @@ class TestNetwork(unittest.TestCase):
 
     def test_load_raises_error(self):
         with tempfile.TemporaryDirectory() as path:
-            path += "/"
             self.nn.save(path)
             shape = list(self.shape)
             self.assertRaises(ValueError, Network(shape[:-1]).load, path)
