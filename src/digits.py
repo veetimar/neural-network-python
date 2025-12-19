@@ -243,11 +243,13 @@ class Digits:
             elif action == "exit":
                 self.exit()
             elif action == "save":
-                self.nn.save()
+                if not os.path.exists("parameters"):
+                    os.makedirs("parameters")
+                self.nn.save("parameters")
                 print("Saved parameters to the disk.")
             elif action == "load":
                 try:
-                    self.nn.load()
+                    self.nn.load("parameters")
                     print("Loaded parameters from the disk.")
                 except FileNotFoundError as e:
                     print("File not found:")
