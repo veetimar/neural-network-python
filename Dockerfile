@@ -1,8 +1,8 @@
-FROM python
+FROM alpine
 
-RUN pip install numpy matplotlib
+RUN apk add python3 py3-numpy py3-matplotlib
 
-WORKDIR /usr/src/app
+WORKDIR /workdir
 
 COPY . .
 
