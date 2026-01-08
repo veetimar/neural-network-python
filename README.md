@@ -11,7 +11,7 @@ Comes with a simple user interface for training and testing the neural net with 
 ### The easy way (Docker installed)
 
 ```console
-docker run -it veetimar/neural-network
+docker run -itv parameters:/workdir/parameters veetimar/neural-network
 ```
 
 Note that matplotlib seems not to work inside a container so plotting error after training and showing images classified wrong/right do not work when using Docker.
